@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626711864650",
+    "project_id": "student-tracker-2645a",
+    "storage_bucket": "student-tracker-2645a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626711864650:android:97a7fef9fab6bc0f628db3",
+        "android_client_info": {
+          "package_name": "com.example.projects"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFmYLL_xVXaa8i46g21wSlV3XueXT7Mro"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
