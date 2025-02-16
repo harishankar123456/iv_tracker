@@ -204,7 +204,8 @@ class StudentHomePage extends StatelessWidget {
             const Center(
               child: Text(
                 'No Groups Available',
-                style: TextStyle(color: Colors.black54, fontSize: 16), // Neutral text color
+                style: TextStyle(
+                    color: Colors.black54, fontSize: 16), // Neutral text color
               ),
             ),
           if (!isEmpty)
@@ -234,7 +235,8 @@ class StudentHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.group, size: 40, color: Color(0xFF625757)), // Darkest shade
+            const Icon(Icons.group,
+                size: 40, color: Color(0xFF625757)), // Darkest shade
             const SizedBox(height: 10),
             Text(
               group['name']!,
@@ -263,7 +265,8 @@ class StudentHomePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Join a Group", style: TextStyle(color: Color(0xFF625757))),
+        title: const Text("Join a Group",
+            style: TextStyle(color: Color(0xFF625757))),
         content: TextField(
           decoration: const InputDecoration(
             hintText: "Enter group link",
@@ -274,7 +277,8 @@ class StudentHomePage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Join", style: TextStyle(color: Color(0xFF9D8F8F))),
+            child:
+                const Text("Join", style: TextStyle(color: Color(0xFF9D8F8F))),
           ),
         ],
       ),
