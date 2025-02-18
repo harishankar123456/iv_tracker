@@ -5,6 +5,7 @@ import 'register_page.dart';
 import '../components/my_button.dart';
 import '../components/my_textfield.dart';
 import '../components/square_tile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatelessWidget {
   final String role;
@@ -26,7 +27,7 @@ class LoginPage extends StatelessWidget {
     try {
       // Firebase sign-in logic
       UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -34,10 +35,10 @@ class LoginPage extends StatelessWidget {
         // Email is verified, proceed to home page
         if (role == 'teacher') {
           Navigator.pushReplacementNamed(
-              context, '/teacher_home'); // Teacher homepage route
+              context, '/teacher_home_page'); // Teacher homepage route
         } else if (role == 'student') {
           Navigator.pushReplacementNamed(
-              context, '/student_home'); // Student homepage route
+              context, '/student_home_page'); // Student homepage route
         }
       } else {
         // Email is not verified
@@ -133,9 +134,11 @@ class LoginPage extends StatelessWidget {
                       controller: emailController,
                       hintText: 'Email',
                       obscureText: false,
-                      backgroundColor: const Color(0xFFF9F9F9), // White background
+                      backgroundColor:
+                          const Color(0xFFF9F9F9), // White background
                       textColor: const Color(0xFF625757), // Dark gray
-                      borderColor: const Color(0xFFBCBAB8), // Subtle gray border
+                      borderColor:
+                          const Color(0xFFBCBAB8), // Subtle gray border
                       borderRadius: 25,
                     ),
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../components/my_button.dart';
 import '../components/my_textfield.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
@@ -87,7 +88,7 @@ class RegisterPage extends StatelessWidget {
     try {
       // Create the user with email and password
       final userCredential =
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
@@ -103,6 +104,15 @@ class RegisterPage extends StatelessWidget {
       // Send email verification
       await userCredential.user?.sendEmailVerification();
       print("Verification email sent to ${userCredential.user?.email}");
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user?.uid)
+          .set({
+        'username': usernameController.text.trim(),
+        'email': emailController.text.trim(),
+        'createdAt': Timestamp.now(),
+      });
     } catch (e) {
       throw Exception('Failed to register user: $e');
     }
