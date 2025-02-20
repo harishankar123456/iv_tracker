@@ -5,14 +5,23 @@ import '../components/my_button.dart';
 import '../components/my_textfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
+  // Converted to StatefulWidget
   RegisterPage({super.key});
 
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   // Text editing controllers
   final usernameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+
+  // Selected Role (Default: Student)
+  String selectedRole = 'Student';
 
   // Method to show a pop-up dialog
   void showPopup(BuildContext context, String message, bool isSuccess) {
@@ -107,10 +116,11 @@ class RegisterPage extends StatelessWidget {
 
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(userCredential.user?.uid)
+          .doc(userCredential.user!.uid)
           .set({
         'username': usernameController.text.trim(),
         'email': emailController.text.trim(),
+        'role': selectedRole, // 🚀 **Modified: Added role to Firestore**
         'createdAt': Timestamp.now(),
       });
     } catch (e) {
@@ -205,6 +215,34 @@ class RegisterPage extends StatelessWidget {
                     textColor: Colors.black,
                     borderColor: Color(0xFFBCBAB8),
                     borderRadius: 25,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Role Selector
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Student'),
+                        selected: selectedRole == 'student',
+                        onSelected: (isSelected) {
+                          setState(() {
+                            selectedRole = 'student';
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      ChoiceChip(
+                        label: const Text('Teacher'),
+                        selected: selectedRole == 'teacher',
+                        onSelected: (isSelected) {
+                          setState(() {
+                            selectedRole = 'teacher';
+                          });
+                        },
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 25),

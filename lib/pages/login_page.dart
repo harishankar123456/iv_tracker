@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase authentication package
+import 'package:firebase_auth/firebase_auth.dart';
 import 'register_page.dart';
 import '../components/my_button.dart';
 import '../components/my_textfield.dart';
@@ -12,36 +12,47 @@ class LoginPage extends StatelessWidget {
 
   LoginPage({super.key, required this.role});
 
-  // Text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  // Firebase authentication instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Sign user in method
   Future<void> signUserIn(BuildContext context) async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     try {
-      // Firebase sign-in logic
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+
       if (userCredential.user?.emailVerified ?? false) {
-        // Email is verified, proceed to home page
+        // Fetch user role from Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+
+        String actualRole = userDoc.get('role');
+
+        if (actualRole != role) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("This account belongs to $actualRole"),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Navigate to appropriate home page
         if (role == 'teacher') {
-          Navigator.pushReplacementNamed(
-              context, '/teacher_home_page'); // Teacher homepage route
+          Navigator.pushReplacementNamed(context, '/teacher_home');
         } else if (role == 'student') {
-          Navigator.pushReplacementNamed(
-              context, '/student_home_page'); // Student homepage route
+          Navigator.pushReplacementNamed(context, '/student_home');
         }
       } else {
-        // Email is not verified
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Please verify your email before logging in.'),
@@ -50,7 +61,6 @@ class LoginPage extends StatelessWidget {
         );
       }
     } on FirebaseAuthException catch (e) {
-      // Handle Firebase-specific errors
       String errorMessage = '';
       if (e.code == 'invalid-credential') {
         errorMessage = "Incorrect credentials, please try again.";
@@ -69,7 +79,6 @@ class LoginPage extends StatelessWidget {
         ),
       );
     } catch (e) {
-      // Handle general errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("An unexpected error occurred: $e"),
@@ -82,13 +91,13 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // Dominant white background
+      backgroundColor: const Color(0xFFF9F9F9),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFF9F9F9), // White
-              Color(0xFFBCBAB8), // Light Gray
+              Color(0xFFF9F9F9),
+              Color(0xFFBCBAB8),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -103,48 +112,35 @@ class LoginPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 50),
-
-                    // Lottie animation
                     Lottie.asset(
                       'assets/animations/Animation - 1736879941396.json',
                       height: 120,
                       width: 120,
                       fit: BoxFit.cover,
                     ),
-
                     const SizedBox(height: 30),
-
-                    // Welcome message
                     Text(
                       role == 'student'
                           ? 'Welcome back, dear Student!'
                           : 'Welcome back, respected Teacher!',
                       style: const TextStyle(
-                        color: Color(0xFF625757), // Accent dark gray
+                        color: Color(0xFF625757),
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
-
                     const SizedBox(height: 20),
-
-                    // Email textfield
                     MyTextField(
                       controller: emailController,
                       hintText: 'Email',
                       obscureText: false,
-                      backgroundColor:
-                          const Color(0xFFF9F9F9), // White background
-                      textColor: const Color(0xFF625757), // Dark gray
-                      borderColor:
-                          const Color(0xFFBCBAB8), // Subtle gray border
+                      backgroundColor: const Color(0xFFF9F9F9),
+                      textColor: const Color(0xFF625757),
+                      borderColor: const Color(0xFFBCBAB8),
                       borderRadius: 25,
                     ),
-
                     const SizedBox(height: 15),
-
-                    // Password textfield
                     MyTextField(
                       controller: passwordController,
                       hintText: 'Password',
@@ -154,28 +150,11 @@ class LoginPage extends StatelessWidget {
                       borderColor: const Color(0xFFBCBAB8),
                       borderRadius: 25,
                     ),
-
-                    const SizedBox(height: 10),
-
-                    // Forgot password
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: const Color(0xFF9D8F8F),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-
                     const SizedBox(height: 25),
-
-                    // Sign in button
                     MyButton(
                       onTap: () => signUserIn(context),
                       text: 'Sign In',
-                      backgroundColor: const Color(0xFF9D8F8F), // Accent color
+                      backgroundColor: const Color(0xFF9D8F8F),
                       textColor: Colors.white,
                       borderRadius: 25,
                       shadowColor: const Color(0xFF625757).withOpacity(0.2),

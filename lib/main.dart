@@ -3,7 +3,6 @@ import 'package:projects/components/splash_screen.dart';
 import './components/student_teacher.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'pages/teacher_home_page.dart'; // Import Teacher HomePage
