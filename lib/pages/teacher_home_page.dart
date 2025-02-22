@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TeacherHomePage extends StatefulWidget {
   const TeacherHomePage({Key? key}) : super(key: key);
@@ -12,6 +15,19 @@ class TeacherHomePage extends StatefulWidget {
 
 class _TeacherHomePageState extends State<TeacherHomePage> {
   final List<Map<String, String>> groups = [];
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
+  // Add these controllers
+  final TextEditingController _groupNameController = TextEditingController();
+  final TextEditingController _groupDescController = TextEditingController();
+
+  @override
+  void dispose() {
+    _groupNameController.dispose();
+    _groupDescController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +112,8 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFBCBAB8).withOpacity(0.3), // Light gray shadow
+              color:
+                  const Color(0xFFBCBAB8).withOpacity(0.3), // Light gray shadow
               offset: const Offset(0, 20),
               blurRadius: 20,
             ),
@@ -107,7 +124,8 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
           backgroundColor: const Color(0xFFF9F9F9), // White
           color: const Color(0xFF625757), // Dark gray icons
           activeColor: Colors.white,
-          tabBackgroundColor: const Color(0xFF9D8F8F), // Warm gray for selected tab
+          tabBackgroundColor:
+              const Color(0xFF9D8F8F), // Warm gray for selected tab
           gap: 8,
           tabs: [
             GButton(
@@ -175,7 +193,24 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   }
 
   Widget _buildGroupsSection() {
-    return _buildGroupList('Your Groups', groups.isEmpty);
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection('groups')
+          .where('teacherId', isEqualTo: _auth.currentUser?.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final groups = snapshot.data?.docs ?? [];
+        return _buildGroupList('Your Groups', groups.isEmpty);
+      },
+    );
   }
 
   Widget _buildGroupList(String title, bool isEmpty) {
@@ -196,7 +231,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF625757), // Accent dark gray
+              color: Color(0xFF625757),
             ),
           ),
           const SizedBox(height: 16),
@@ -205,19 +240,35 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
               child: Text(
                 'No Groups Available',
                 style: TextStyle(
-                  color: Color(0xFF625757), // Accent dark gray
+                  color: Color(0xFF625757),
                   fontSize: 16,
                 ),
               ),
             ),
           if (!isEmpty)
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: groups.length,
-                itemBuilder: (context, index) {
-                  final group = groups[index];
-                  return _buildGroupCard(group);
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _firestore
+                    .collection('groups')
+                    .where('teacherId', isEqualTo: _auth.currentUser?.uid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      final group = snapshot.data!.docs[index].data()
+                          as Map<String, dynamic>;
+                      return _buildGroupCard({
+                        'name': group['name'] ?? '',
+                        'description': group['description'] ?? '',
+                      });
+                    },
+                  );
                 },
               ),
             ),
@@ -261,10 +312,148 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   }
 
   void _showAddGroupDialog() {
-    // Add group dialog implementation
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Create New Group'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _groupNameController,
+              decoration: const InputDecoration(
+                labelText: 'Group Name',
+                hintText: 'Enter group name',
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _groupDescController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'Enter group description',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _createGroup();
+              Navigator.pop(context);
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _generateGroupLink() {
-    // Generate group link implementation
+  Future<void> _createGroup() async {
+    if (_groupNameController.text.isEmpty) return;
+
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return;
+
+      final groupId = const Uuid().v4();
+      await _firestore.collection('groups').doc(groupId).set({
+        'name': _groupNameController.text.trim(),
+        'description': _groupDescController.text.trim(),
+        'teacherId': user.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+        'groupId': groupId,
+      });
+
+      _groupNameController.clear();
+      _groupDescController.clear();
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Group created successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating group: $e')),
+        );
+      }
+    }
+  }
+
+  void _generateGroupLink() async {
+    try {
+      final groups = await _firestore
+          .collection('groups')
+          .where('teacherId', isEqualTo: _auth.currentUser?.uid)
+          .get();
+
+      if (groups.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Create a group first!')),
+        );
+        return;
+      }
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Select Group'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: groups.docs.length,
+              itemBuilder: (context, index) {
+                final group = groups.docs[index].data();
+                return ListTile(
+                  title: Text(group['name'] ?? ''),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showGroupLink(group['groupId']);
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  void _showGroupLink(String groupId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Group Link'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Share this code with your students:'),
+            const SizedBox(height: 10),
+            SelectableText(
+              groupId,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 }

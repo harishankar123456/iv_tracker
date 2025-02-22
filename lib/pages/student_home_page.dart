@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class StudentHomePage extends StatelessWidget {
-  final List<Map<String, String>> groups = []; // List of groups
+class StudentHomePage extends StatefulWidget {
+  const StudentHomePage({Key? key}) : super(key: key);
+
+  @override
+  _StudentHomePageState createState() => _StudentHomePageState();
+}
+
+class _StudentHomePageState extends State<StudentHomePage> {
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+  final _groupCodeController = TextEditingController();
+
+  @override
+  void dispose() {
+    _groupCodeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +125,7 @@ class StudentHomePage extends StatelessWidget {
               icon: Icons.link,
               text: "Join Group",
               onPressed: () {
-                _joinGroup(context);
+                _showJoinGroupDialog(context);
               },
             ),
           ],
@@ -167,7 +184,24 @@ class StudentHomePage extends StatelessWidget {
 
   // Groups Section for Students
   Widget _buildGroupsSection() {
-    return _buildGroupList('Join Groups', groups.isEmpty);
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection('group_members')
+          .where('userId', isEqualTo: _auth.currentUser?.uid)
+          .snapshots(),
+      builder: (context, membershipSnapshot) {
+        if (membershipSnapshot.hasError) {
+          return Center(child: Text('Error: ${membershipSnapshot.error}'));
+        }
+
+        if (membershipSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final memberships = membershipSnapshot.data?.docs ?? [];
+        return _buildGroupList('Your Groups', memberships.isEmpty);
+      },
+    );
   }
 
   // Group List Builder
@@ -210,12 +244,41 @@ class StudentHomePage extends StatelessWidget {
             ),
           if (!isEmpty)
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: groups.length,
-                itemBuilder: (context, index) {
-                  final group = groups[index];
-                  return _buildGroupCard(group);
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _firestore
+                    .collection('group_members')
+                    .where('userId', isEqualTo: _auth.currentUser?.uid)
+                    .snapshots(),
+                builder: (context, membershipSnapshot) {
+                  if (!membershipSnapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: membershipSnapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      final membership = membershipSnapshot.data!.docs[index];
+                      final groupId = membership['groupId'];
+
+                      return FutureBuilder<DocumentSnapshot>(
+                        future:
+                            _firestore.collection('groups').doc(groupId).get(),
+                        builder: (context, groupSnapshot) {
+                          if (!groupSnapshot.hasData) {
+                            return const SizedBox();
+                          }
+
+                          final groupData = groupSnapshot.data!.data()
+                              as Map<String, dynamic>;
+                          return _buildGroupCard({
+                            'name': groupData['name'] ?? '',
+                            'description': groupData['description'] ?? '',
+                          });
+                        },
+                      );
+                    },
+                  );
                 },
               ),
             ),
@@ -261,27 +324,77 @@ class StudentHomePage extends StatelessWidget {
   }
 
   // Join Group Dialog
-  void _joinGroup(BuildContext context) {
+  void _showJoinGroupDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Join a Group",
-            style: TextStyle(color: Color(0xFF625757))),
+        title: const Text("Join a Group"),
         content: TextField(
+          controller: _groupCodeController,
           decoration: const InputDecoration(
-            hintText: "Enter group link",
-            hintStyle: TextStyle(color: Colors.black54),
+            labelText: 'Group Code',
+            hintText: 'Enter the group code',
           ),
-          onChanged: (value) {},
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                const Text("Join", style: TextStyle(color: Color(0xFF9D8F8F))),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              _joinGroup(_groupCodeController.text.trim());
+              Navigator.pop(context);
+              _groupCodeController.clear();
+            },
+            child: const Text('Join'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _joinGroup(String groupId) async {
+    try {
+      // Check if group exists
+      final groupDoc = await _firestore.collection('groups').doc(groupId).get();
+
+      if (!groupDoc.exists) {
+        throw 'Group not found';
+      }
+
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      // Check if already joined
+      final existingMembership = await _firestore
+          .collection('group_members')
+          .where('groupId', isEqualTo: groupId)
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      if (existingMembership.docs.isNotEmpty) {
+        throw 'You are already a member of this group';
+      }
+
+      // Join the group
+      await _firestore.collection('group_members').add({
+        'groupId': groupId,
+        'userId': userId,
+        'joinedAt': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully joined the group!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 }
