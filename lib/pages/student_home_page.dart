@@ -29,43 +29,65 @@ class _StudentHomePageState extends State<StudentHomePage> {
       body: Column(
         children: [
           // Profile Section
-          Container(
-            height: 250,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF625757), // Darkest shade
-                  const Color(0xFF9D8F8F), // Medium dark shade
-                  const Color(0xFFBCBAB8), // Soft gray
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          Stack(
+            children: [
+              Container(
+                height: 250,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF625757), // Darkest shade
+                      const Color(0xFF9D8F8F), // Medium dark shade
+                      const Color(0xFFBCBAB8), // Soft gray
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        'lib/images/profile.png',
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Student',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFF9F9F9), // Lightest shade for contrast
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Image.asset(
-                    'lib/images/profile.png',
-                    height: 100,
-                    width: 100,
-                    fit: BoxFit.cover,
+              Positioned(
+                top: 40,
+                right: 16,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Color(0xFFF9F9F9),
+                    size: 28,
                   ),
+                  onPressed: () async {
+                    await _auth.signOut();
+                    if (mounted) {
+                      Navigator.of(context)
+                          .pushReplacementNamed('/student_teacher');
+                    }
+                  },
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Student',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFF9F9F9), // Lightest shade for contrast
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
 
           // Guide Section

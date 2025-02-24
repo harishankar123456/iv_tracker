@@ -7,14 +7,52 @@ import '../components/my_textfield.dart';
 import '../components/square_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   final String role;
 
-  LoginPage({super.key, required this.role});
+  const LoginPage({super.key, required this.role});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    // Check if user is already logged in
+    checkCurrentUser();
+  }
+
+  Future<void> checkCurrentUser() async {
+    // Get current user
+    final User? user = _auth.currentUser;
+
+    if (user != null && user.emailVerified) {
+      // Fetch user role from Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      String actualRole = userDoc.get('role');
+
+      if (actualRole == widget.role) {
+        // Navigate to appropriate home page
+        if (!mounted) return;
+
+        if (actualRole == 'teacher') {
+          Navigator.pushReplacementNamed(context, '/teacher_home');
+        } else if (actualRole == 'student') {
+          Navigator.pushReplacementNamed(context, '/student_home');
+        }
+      }
+    }
+  }
 
   Future<void> signUserIn(BuildContext context) async {
     final email = emailController.text.trim();
@@ -36,7 +74,7 @@ class LoginPage extends StatelessWidget {
 
         String actualRole = userDoc.get('role');
 
-        if (actualRole != role) {
+        if (actualRole != widget.role) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("This account belongs to $actualRole"),
@@ -47,9 +85,9 @@ class LoginPage extends StatelessWidget {
         }
 
         // Navigate to appropriate home page
-        if (role == 'teacher') {
+        if (widget.role == 'teacher') {
           Navigator.pushReplacementNamed(context, '/teacher_home');
-        } else if (role == 'student') {
+        } else if (widget.role == 'student') {
           Navigator.pushReplacementNamed(context, '/student_home');
         }
       } else {
@@ -120,7 +158,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 30),
                     Text(
-                      role == 'student'
+                      widget.role == 'student'
                           ? 'Welcome back, dear Student!'
                           : 'Welcome back, respected Teacher!',
                       style: const TextStyle(
