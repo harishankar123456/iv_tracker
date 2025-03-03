@@ -3,6 +3,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'homepage.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({Key? key}) : super(key: key);
@@ -311,35 +312,40 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   // Group Card for Students
   Widget _buildGroupCard(Map<String, String> group) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: const Color(0xFFBCBAB8), // Soft gray
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.group,
-                size: 40, color: Color(0xFF625757)), // Darkest shade
-            const SizedBox(height: 10),
-            Text(
-              group['name']!,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF625757), // Darkest shade
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/home');
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        color: const Color(0xFFBCBAB8), // Soft gray
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.group,
+                  size: 40, color: Color(0xFF625757)), // Darkest shade
+              const SizedBox(height: 10),
+              Text(
+                group['name']!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF625757), // Darkest shade
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              group['description']!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54, // Neutral text color
+              const SizedBox(height: 5),
+              Text(
+                group['description']!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54, // Neutral text color
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

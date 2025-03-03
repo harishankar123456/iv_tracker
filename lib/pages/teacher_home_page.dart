@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'homepage.dart';
 
 class TeacherHomePage extends StatefulWidget {
   const TeacherHomePage({Key? key}) : super(key: key);
@@ -300,34 +301,39 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   }
 
   Widget _buildGroupCard(Map<String, String> group) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: const Color(0xFFF9F9F9), // White card
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.group, size: 40, color: Color(0xFF625757)),
-            const SizedBox(height: 10),
-            Text(
-              group['name']!,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF625757),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/home');
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        color: const Color(0xFFF9F9F9), // White card
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.group, size: 40, color: Color(0xFF625757)),
+              const SizedBox(height: 10),
+              Text(
+                group['name']!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF625757),
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              group['description']!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF625757),
+              const SizedBox(height: 5),
+              Text(
+                group['description']!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF625757),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
