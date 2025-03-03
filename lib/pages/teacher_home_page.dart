@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'homepage.dart';
 
 class TeacherHomePage extends StatefulWidget {
   const TeacherHomePage({Key? key}) : super(key: key);
@@ -36,42 +37,64 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
       body: Column(
         children: [
           // Profile Section
-          Container(
-            height: 250,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFFF9F9F9), // White
-                  Color(0xFFBCBAB8), // Light gray as subtle gradient
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+          Stack(
+            children: [
+              Container(
+                height: 250,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFF9F9F9), // White
+                      Color(0xFFBCBAB8), // Light gray as subtle gradient
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        'lib/images/profile2.png',
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Teacher',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF625757), // Accent dark gray
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Image.asset(
-                    'lib/images/profile2.png',
-                    height: 100,
-                    width: 100,
-                    fit: BoxFit.cover,
+              Positioned(
+                top: 40,
+                right: 16,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Color(0xFF625757),
+                    size: 28,
                   ),
+                  onPressed: () async {
+                    await _auth.signOut();
+                    if (mounted) {
+                      Navigator.of(context)
+                          .pushReplacementNamed('/student_teacher');
+                    }
+                  },
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Teacher',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF625757), // Accent dark gray
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
 
           // Guide Section
@@ -278,34 +301,39 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   }
 
   Widget _buildGroupCard(Map<String, String> group) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: const Color(0xFFF9F9F9), // White card
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.group, size: 40, color: Color(0xFF625757)),
-            const SizedBox(height: 10),
-            Text(
-              group['name']!,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF625757),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/home');
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        color: const Color(0xFFF9F9F9), // White card
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.group, size: 40, color: Color(0xFF625757)),
+              const SizedBox(height: 10),
+              Text(
+                group['name']!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF625757),
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              group['description']!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF625757),
+              const SizedBox(height: 5),
+              Text(
+                group['description']!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF625757),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

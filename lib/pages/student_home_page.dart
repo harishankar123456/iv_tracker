@@ -3,6 +3,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'homepage.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({Key? key}) : super(key: key);
@@ -29,43 +30,65 @@ class _StudentHomePageState extends State<StudentHomePage> {
       body: Column(
         children: [
           // Profile Section
-          Container(
-            height: 250,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF625757), // Darkest shade
-                  const Color(0xFF9D8F8F), // Medium dark shade
-                  const Color(0xFFBCBAB8), // Soft gray
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          Stack(
+            children: [
+              Container(
+                height: 250,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF625757), // Darkest shade
+                      const Color(0xFF9D8F8F), // Medium dark shade
+                      const Color(0xFFBCBAB8), // Soft gray
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        'lib/images/profile.png',
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Student',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFF9F9F9), // Lightest shade for contrast
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Image.asset(
-                    'lib/images/profile.png',
-                    height: 100,
-                    width: 100,
-                    fit: BoxFit.cover,
+              Positioned(
+                top: 40,
+                right: 16,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Color(0xFFF9F9F9),
+                    size: 28,
                   ),
+                  onPressed: () async {
+                    await _auth.signOut();
+                    if (mounted) {
+                      Navigator.of(context)
+                          .pushReplacementNamed('/student_teacher');
+                    }
+                  },
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Student',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFF9F9F9), // Lightest shade for contrast
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
 
           // Guide Section
@@ -289,35 +312,40 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   // Group Card for Students
   Widget _buildGroupCard(Map<String, String> group) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: const Color(0xFFBCBAB8), // Soft gray
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.group,
-                size: 40, color: Color(0xFF625757)), // Darkest shade
-            const SizedBox(height: 10),
-            Text(
-              group['name']!,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF625757), // Darkest shade
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/home');
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        color: const Color(0xFFBCBAB8), // Soft gray
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.group,
+                  size: 40, color: Color(0xFF625757)), // Darkest shade
+              const SizedBox(height: 10),
+              Text(
+                group['name']!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF625757), // Darkest shade
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              group['description']!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54, // Neutral text color
+              const SizedBox(height: 5),
+              Text(
+                group['description']!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54, // Neutral text color
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

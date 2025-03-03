@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'pages/teacher_home_page.dart'; // Import Teacher HomePage
 import 'pages/student_home_page.dart';
+import 'pages/homepage.dart'; // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/teacher_home': (context) =>
             TeacherHomePage(), // Add Teacher HomePage route
         '/student_home': (context) => StudentHomePage(),
+        '/home': (context) => IVTrackingHome(), // Add this route
       },
     );
   }
