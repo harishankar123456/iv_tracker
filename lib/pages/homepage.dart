@@ -79,9 +79,55 @@ class _IVTrackingHomeState extends State<IVTrackingHome> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.map, color: Colors.blue),
+              title: Text('Map'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.group, color: Colors.blue),
+              title: Text('Groups'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person, color: Colors.blue),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
         ),
       ),
       body: Stack(
@@ -103,44 +149,6 @@ class _IVTrackingHomeState extends State<IVTrackingHome> {
             // Position controls to the left instead of right
             zoomGesturesEnabled: false,
             rotateGesturesEnabled: false,
-          ),
-
-          // Bottom Navigation Bar
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              padding: EdgeInsets.all(10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.map, size: 30, color: Colors.blue),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.group, size: 30, color: Colors.blue),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.person, size: 30, color: Colors.blue),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
           ),
 
           // Teacher-specific Edit Button

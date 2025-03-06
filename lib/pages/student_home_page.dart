@@ -293,10 +293,18 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           }
 
                           final groupData = groupSnapshot.data!.data()
-                              as Map<String, dynamic>;
+                                  as Map<String, dynamic>? ??
+                              {
+                                'name': 'Deleted Group',
+                                'description': 'This group no longer exists'
+                              };
+
                           return _buildGroupCard({
-                            'name': groupData['name'] ?? '',
-                            'description': groupData['description'] ?? '',
+                            'name': groupData['name']?.toString() ??
+                                'Unnamed Group',
+                            'description':
+                                groupData['description']?.toString() ??
+                                    'No description',
                           });
                         },
                       );
