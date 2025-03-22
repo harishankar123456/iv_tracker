@@ -13,18 +13,18 @@ packages:
     dependency: "direct main"
     description:
       name: animate_do
-      sha256: "4554744e604b841e2bde710398ef3f4f8a1935a182b48727afe2a1023527b883"
+      sha256: e5c8b92e8495cba5adfff17c0b017d50f46b2766226e9faaf68bc08c91aef034
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "4.2.0"
   archive:
     dependency: transitive
     description:
       name: archive
-      sha256: cb6a278ef2dbb298455e1a713bda08524a175630ec643a242c399c932a0a1f7d
+      sha256: "0c64e928dcbefddecd234205422bcfc2b5e6d31be0b86fef0d0dd48d7b4c9742"
       url: "https://pub.dev"
     source: hosted
-    version: "3.6.1"
+    version: "4.0.4"
   async:
     dependency: transitive
     description:
@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  ffi:
+    dependency: transitive
+    description:
+      name: ffi
+      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.3"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -186,10 +194,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_animate
-      sha256: "1f6fdee1f63eda3c35e04c07664593c31b7fdae290b6b0dc513d2fdfb2d27c76"
+      sha256: "7befe2d3252728afb77aecaaea1dec88a89d35b9b1d2eea6d04479e8af9117b5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "4.5.2"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -206,6 +214,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.27"
+  flutter_shaders:
+    dependency: transitive
+    description:
+      name: flutter_shaders
+      sha256: "34794acadd8275d971e02df03afee3dee0f98dbfb8c4837082ad0034f612a3e2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -236,10 +252,10 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_android
-      sha256: "721ffae2240e957c04b0de19ffd4b68580adb57a8224496b7fb55fad23aec98a"
+      sha256: "3b3f55d6b4f2bde6bbe80dca0bf8d228313005c9ce8a97a1d24257600d8c92e5"
       url: "https://pub.dev"
     source: hosted
-    version: "2.14.13"
+    version: "2.14.14"
   google_maps_flutter_ios:
     dependency: transitive
     description:
@@ -260,10 +276,10 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_web
-      sha256: a9fd5356d46f54744ced1ebedbbf212f3d2cb71e95d79b1d08690c1ec33dc584
+      sha256: bbeb93807a34bfeebdb7ace506bd2bc400a3915dc96736254fea721eb264caa0
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.10+1"
+    version: "0.5.11"
   google_nav_bar:
     dependency: "direct main"
     description:
@@ -280,6 +296,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.15.5"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      sha256: fe7ab022b76f3034adc518fb6ea04a82387620e19977665ea18d30a1cf43442f
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   http_parser:
     dependency: transitive
     description:
@@ -320,14 +344,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
+  location:
+    dependency: "direct main"
+    description:
+      name: location
+      sha256: c2c4304071ec860525d5c50d142410072f8620c1d9f74874811af2e804e1a9c8
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.0.0"
+  location_platform_interface:
+    dependency: transitive
+    description:
+      name: location_platform_interface
+      sha256: a3404ea6d74e89b121630be62ed8edcc7b39fd108bd19805d0ae55c397135dd7
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
+  location_web:
+    dependency: transitive
+    description:
+      name: location_web
+      sha256: "744bdff53dc455a2dc9a34474c49cde364d4fbef2aee009f8b0b4b68570c27a1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   lottie:
     dependency: "direct dev"
     description:
       name: lottie
-      sha256: a93542cc2d60a7057255405f62252533f8e8956e7e06754955669fd32fb4b216
+      sha256: c5fa04a80a620066c15cf19cc44773e19e9b38e989ff23ea32e5903ef1015950
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.0"
+    version: "3.3.1"
   matcher:
     dependency: transitive
     description:
@@ -368,6 +416,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  posix:
+    dependency: transitive
+    description:
+      name: posix
+      sha256: a0117dc2167805aa9125b82eee515cc891819bac2f538c83646d355b16f58b9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.1"
   sanitize_html:
     dependency: transitive
     description:
@@ -485,6 +541,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  workmanager:
+    dependency: "direct main"
+    description:
+      name: workmanager
+      sha256: ed13530cccd28c5c9959ad42d657cd0666274ca74c56dea0ca183ddd527d3a00
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.2"
 sdks:
   dart: ">=3.6.0 <4.0.0"
   flutter: ">=3.27.0"
