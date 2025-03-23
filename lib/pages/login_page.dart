@@ -33,23 +33,32 @@ class _LoginPageState extends State<LoginPage> {
     final User? user = _auth.currentUser;
 
     if (user != null && user.emailVerified) {
-      // Fetch user role from Firestore
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      // Check if widget is still mounted before proceeding
+      if (!mounted) return;
 
-      String actualRole = userDoc.get('role');
+      try {
+        // Fetch user role from Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
 
-      if (actualRole == widget.role) {
-        // Navigate to appropriate home page
+        // Check again if widget is still mounted after async operation
         if (!mounted) return;
 
-        if (actualRole == 'teacher') {
-          Navigator.pushReplacementNamed(context, '/teacher_home');
-        } else if (actualRole == 'student') {
-          Navigator.pushReplacementNamed(context, '/student_home');
+        String actualRole = userDoc.get('role');
+
+        if (actualRole == widget.role) {
+          // Navigate to appropriate home page
+          if (actualRole == 'teacher') {
+            Navigator.pushReplacementNamed(context, '/teacher_home');
+          } else if (actualRole == 'student') {
+            Navigator.pushReplacementNamed(context, '/student_home');
+          }
         }
+      } catch (e) {
+        // Handle any errors silently during auto-login
+        print('Error during auto-login: $e');
       }
     }
   }
