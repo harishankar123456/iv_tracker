@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class Backend {
   // Fetch the user role from Firebase
@@ -51,6 +52,46 @@ class Backend {
     } catch (e) {
       print('Error fetching geofences for group: $e');
       return [];
+    }
+  }
+
+  // Update the user's location in Firestore
+  static Future<void> updateUserLocation() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        Location location = Location();
+
+        // Check location permissions
+        bool serviceEnabled = await location.serviceEnabled();
+        if (!serviceEnabled) {
+          serviceEnabled = await location.requestService();
+          if (!serviceEnabled) return;
+        }
+
+        PermissionStatus permissionGranted = await location.hasPermission();
+        if (permissionGranted == PermissionStatus.denied) {
+          permissionGranted = await location.requestPermission();
+          if (permissionGranted != PermissionStatus.granted) return;
+        }
+
+        // Get the current location
+        final currentLocation = await location.getLocation();
+
+        // Update Firestore with the user's location
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({
+          'location': {
+            'latitude': currentLocation.latitude,
+            'longitude': currentLocation.longitude,
+            'timestamp': FieldValue.serverTimestamp(),
+          },
+        });
+      }
+    } catch (e) {
+      print('Error updating user location: $e');
     }
   }
 }
